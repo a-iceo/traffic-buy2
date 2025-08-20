@@ -1,9 +1,232 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Mi Proyecto de Tráfico Web</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airdrops Dashboard en Tiempo Real</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background-color: #0d1117;
+            --card-background: rgba(22, 27, 34, 0.7);
+            --border-color: rgba(139, 92, 246, 0.2);
+            --accent-color: #8B5CF6;
+            --glow-color: rgba(139, 92, 246, 0.4);
+            --text-primary: #e6edf3;
+            --text-secondary: #8d949d;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+        #app-container {
+            max-width: 1200px;
+            margin: auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            color: #fff;
+            text-shadow: 0 0 10px var(--glow-color);
+            margin: 0;
+        }
+        header p {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        #last-updated {
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        #airdrops-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px var(--glow-color);
+        }
+        .card-header h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            color: #fff;
+        }
+        .card-body {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            flex-grow: 1;
+        }
+        .card-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chain-badge {
+            background-color: var(--accent-color);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        .card-link {
+            background-color: var(--accent-color);
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .card-link:hover {
+            background-color: #7c4ee4;
+        }
+        #loader {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+        }
+    </style>
 </head>
 <body>
-  <h1>Mi Tienda de Tráfico Web - En Construcción</h1>
+    <div id="app-container">
+        <header>
+            <h1>🚀 Airdrops en Tiempo Real</h1>
+            <p>Analizando las mejores oportunidades del ecosistema cripto. Última actualización: <span id="last-updated">Nunca</span></p>
+        </header>
+        <main>
+            <div id="loader">Cargando datos de airdrops...</div>
+            <div id="airdrops-grid"></div>
+        </main>
+    </div>
+
+    <script>
+        const grid = document.getElementById('airdrops-grid');
+        const loader = document.getElementById('loader');
+        const lastUpdatedSpan = document.getElementById('last-updated');
+        let allAirdrops = [];
+
+        // --- FUENTES DE DATOS (APIs) ---
+        const API_SOURCES = [
+            {
+                name: "DeFiLlama",
+                url: "https://api.llama.fi/airdrops"
+            },
+            {
+                name: "Airdrops.io",
+                url: "https://airdrops.io/wp-json/wp/v2/posts?per_page=15"
+            }
+        ];
+
+        async function fetchAPIs() {
+            loader.style.display = 'block';
+            grid.innerHTML = '';
+            console.log("Iniciando análisis de APIs...");
+
+            const promises = API_SOURCES.map(source => fetch(source.url).then(res => res.json()));
+            const results = await Promise.allSettled(promises);
+            
+            let rawAirdrops = [];
+
+            // Procesar DeFiLlama
+            if (results[0].status === 'fulfilled') {
+                const airdrops = results[0].value;
+                airdrops.forEach(ad => {
+                    rawAirdrops.push({
+                        title: ad.name,
+                        description: `Airdrop potencial para el protocolo ${ad.name}. Se recomienda interactuar con su plataforma.`,
+                        chain: ad.chains.join(', '),
+                        url: ad.url || `https://defillama.com/protocol/${ad.slug}`,
+                        source: 'DeFiLlama'
+                    });
+                });
+            }
+
+            // Procesar Airdrops.io
+            if (results[1].status === 'fulfilled') {
+                const airdrops = results[1].value;
+                airdrops.forEach(post => {
+                    rawAirdrops.push({
+                        title: post.title.rendered,
+                        description: post.excerpt.rendered.replace(/<[^>]*>?/gm, ''),
+                        chain: 'Multichain', // Airdrops.io no especifica la chain en la API principal
+                        url: post.link,
+                        source: 'Airdrops.io'
+                    });
+                });
+            }
+
+            // Eliminar duplicados y ordenar
+            const uniqueTitles = new Set();
+            allAirdrops = rawAirdrops.filter(ad => {
+                const isDuplicate = uniqueTitles.has(ad.title);
+                uniqueTitles.add(ad.title);
+                return !isDuplicate;
+            });
+            
+            renderAirdrops();
+        }
+
+        function renderAirdrops() {
+            loader.style.display = 'none';
+            grid.innerHTML = ''; // Limpiar antes de renderizar
+
+            if (allAirdrops.length === 0) {
+                grid.innerHTML = '<p>No se encontraron airdrops activos en este momento o las APIs fallaron. Reintentando pronto...</p>';
+                return;
+            }
+
+            allAirdrops.forEach(ad => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <h3>${ad.title}</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>${ad.description}</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="chain-badge">${ad.chain}</span>
+                        <a href="${ad.url}" target="_blank" rel="noopener nofollow" class="card-link">Más Info</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            lastUpdatedSpan.textContent = new Date().toLocaleTimeString();
+        }
+
+        // --- INICIAR Y REPETIR ---
+        // Carga inicial
+        fetchAPIs();
+
+        // Actualizar cada 5 minutos (300,000 milisegundos)
+        setInterval(fetchAPIs, 300000);
+
+    </script>
 </body>
 </html>
