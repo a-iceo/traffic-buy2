@@ -25,10 +25,49 @@
             padding: 20px;
         }
         #app-container { max-width: 1200px; margin: auto; }
-        header { text-align: center; margin-bottom: 20px; }
-        header h1 { color: #fff; text-shadow: 0 0 10px var(--glow-color); margin: 0; }
-        header p { color: var(--text-secondary); font-size: 0.9em; }
-        #last-updated { font-weight: 600; color: var(--accent-color); }
+        
+        /* --- NUEVO LAYOUT PARA LA CABECERA CON BANNERS --- */
+        #main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+        }
+        .banner-container {
+            width: 468px;
+            height: 60px;
+            flex-shrink: 0; /* Evita que los banners se encojan */
+        }
+        .title-container {
+            flex-grow: 1; /* Permite que el título ocupe el espacio sobrante */
+            text-align: center;
+            padding: 0 15px; /* Espacio entre el título y los banners */
+        }
+        .title-container h1 {
+            color: #fff;
+            text-shadow: 0 0 10px var(--glow-color);
+            margin: 0;
+            font-size: 1.8em; /* Ajuste de tamaño para el layout */
+        }
+        .title-container p {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        /* --- ESTILOS RESPONSIVOS PARA LA CABECERA --- */
+        @media (max-width: 1024px) {
+            #main-header {
+                flex-direction: column; /* Apila los elementos verticalmente */
+                gap: 20px; /* Espacio entre los elementos apilados */
+            }
+            .title-container {
+                order: -1; /* Mueve el título a la parte superior en móviles */
+            }
+        }
+        
+        /* --- ESTILOS DEL RESTO DE LA PÁGINA (sin cambios) --- */
         #airdrops-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .card { background: var(--card-background); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 0 25px var(--glow-color); }
@@ -39,74 +78,61 @@
         .card-link { background-color: var(--accent-color); color: #fff; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; transition: background-color 0.2s; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.9em; }
         .card-link:hover { background-color: #7c4ee4; }
         #loader { text-align: center; padding: 50px; font-size: 1.2em; }
-
-        /* --- ESTILOS PARA LA VENTANA MODAL --- */
-        #modal-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: none; /* Oculto por defecto */
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background-color: #161b22;
-            padding: 20px;
-            border-radius: 10px;
-            width: 85%;
-            height: 85%;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 30px var(--glow-color);
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .modal-header h2 {
-            margin: 0;
-            font-size: 1.2em;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 2em;
-            cursor: pointer;
-            line-height: 1;
-        }
-        .modal-body {
-            flex-grow: 1;
-            padding-top: 15px;
-        }
-        #modal-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 5px;
-        }
+        #modal-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background-color: #161b22; padding: 20px; border-radius: 10px; width: 85%; height: 85%; display: flex; flex-direction: column; box-shadow: 0 0 30px var(--glow-color); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+        .modal-header h2 { margin: 0; font-size: 1.2em; }
+        .modal-close { background: none; border: none; color: #fff; font-size: 2em; cursor: pointer; line-height: 1; }
+        .modal-body { flex-grow: 1; padding-top: 15px; }
+        #modal-iframe { width: 100%; height: 100%; border: none; border-radius: 5px; }
     </style>
 </head>
 <body>
     <div id="app-container">
-        <header>
-            <h1>🚀 Airdrops en Tiempo Real</h1>
-            <p>Analizando las mejores oportunidades del ecosistema cripto. Última actualización: <span id="last-updated">Nunca</span></p>
+        <!-- CABECERA MODIFICADA CON LOS BANNERS -->
+        <header id="main-header">
+            <!-- Banner Izquierdo -->
+            <div class="banner-container left-banner">
+                <script type="text/javascript">
+                    atOptions = {
+                        'key' : '5d80e0f4098aaff0b4ff27ba975e2ddd',
+                        'format' : 'iframe',
+                        'height' : 60,
+                        'width' : 468,
+                        'params' : {}
+                    };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/5d80e0f4098aaff0b4ff27ba975e2ddd/invoke.js"></script>
+            </div>
+            
+            <!-- Título Centrado -->
+            <div class="title-container">
+                <h1>🚀 Airdrops en Tiempo Real</h1>
+                <p>Analizando las mejores oportunidades del ecosistema cripto. Última actualización: <span id="last-updated">Nunca</span></p>
+            </div>
+
+            <!-- Banner Derecho -->
+            <div class="banner-container right-banner">
+                <script type="text/javascript">
+                    atOptions = {
+                        'key' : '5d80e0f4098aaff0b4ff27ba975e2ddd',
+                        'format' : 'iframe',
+                        'height' : 60,
+                        'width' : 468,
+                        'params' : {}
+                    };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/5d80e0f4098aaff0b4ff27ba975e2ddd/invoke.js"></script>
+            </div>
         </header>
+        
         <main>
             <div id="loader">Cargando datos de airdrops...</div>
             <div id="airdrops-grid"></div>
         </main>
     </div>
 
-    <!-- --- ESTRUCTURA HTML DE LA VENTANA MODAL --- -->
+    <!-- ESTRUCTURA HTML DE LA VENTANA MODAL (sin cambios) -->
     <div id="modal-container">
         <div class="modal-content">
             <div class="modal-header">
@@ -119,6 +145,7 @@
         </div>
     </div>
 
+    <!-- SCRIPT PRINCIPAL (sin cambios) -->
     <script>
         const grid = document.getElementById('airdrops-grid');
         const loader = document.getElementById('loader');
@@ -127,18 +154,16 @@
         const modalIframe = document.getElementById('modal-iframe');
         let allAirdrops = [];
 
-        // --- FUNCIONES PARA CONTROLAR EL MODAL ---
         function openModal(url) {
-            modalIframe.src = url; // Carga la URL en el iframe
-            modalContainer.style.display = 'flex'; // Muestra el modal
+            modalIframe.src = url;
+            modalContainer.style.display = 'flex';
         }
 
         function closeModal() {
-            modalContainer.style.display = 'none'; // Oculta el modal
-            modalIframe.src = ''; // Detiene la carga del iframe para liberar recursos
+            modalContainer.style.display = 'none';
+            modalIframe.src = '';
         }
 
-        // --- FUENTES DE DATOS (APIs) ---
         const API_SOURCES = [
             { name: "DeFiLlama", url: "https://api.llama.fi/airdrops" },
             { name: "Airdrops.io", url: "https://airdrops.io/wp-json/wp/v2/posts?per_page=15" }
@@ -147,32 +172,27 @@
         async function fetchAPIs() {
             loader.style.display = 'block';
             grid.innerHTML = '';
-            console.log("Iniciando análisis de APIs...");
-
+            
             const promises = API_SOURCES.map(source => fetch(source.url).then(res => res.json()));
             const results = await Promise.allSettled(promises);
             
             let rawAirdrops = [];
 
             if (results[0].status === 'fulfilled') {
-                const airdrops = results[0].value;
-                airdrops.forEach(ad => rawAirdrops.push({
+                results[0].value.forEach(ad => rawAirdrops.push({
                     title: ad.name,
                     description: `Airdrop potencial para el protocolo ${ad.name}. Se recomienda interactuar con su plataforma.`,
                     chain: ad.chains.join(', '),
-                    url: ad.url || `https://defillama.com/protocol/${ad.slug}`,
-                    source: 'DeFiLlama'
+                    url: ad.url || `https://defillama.com/protocol/${ad.slug}`
                 }));
             }
 
             if (results[1].status === 'fulfilled') {
-                const airdrops = results[1].value;
-                airdrops.forEach(post => rawAirdrops.push({
+                results[1].value.forEach(post => rawAirdrops.push({
                     title: post.title.rendered,
                     description: post.excerpt.rendered.replace(/<[^>]*>?/gm, ''),
                     chain: 'Multichain',
-                    url: post.link,
-                    source: 'Airdrops.io'
+                    url: post.link
                 }));
             }
             
@@ -198,16 +218,9 @@
             allAirdrops.forEach(ad => {
                 const card = document.createElement('div');
                 card.className = 'card';
-
-                // --- CAMBIO CLAVE AQUÍ ---
-                // El enlace ahora es un botón que llama a la función openModal()
                 card.innerHTML = `
-                    <div class="card-header">
-                        <h3>${ad.title}</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>${ad.description}</p>
-                    </div>
+                    <div class="card-header"><h3>${ad.title}</h3></div>
+                    <div class="card-body"><p>${ad.description}</p></div>
                     <div class="card-footer">
                         <span class="chain-badge">${ad.chain}</span>
                         <button class="card-link" onclick="openModal('${ad.url}')">Más Info</button>
@@ -219,10 +232,8 @@
             lastUpdatedSpan.textContent = new Date().toLocaleTimeString();
         }
 
-        // --- INICIAR Y REPETIR ---
         fetchAPIs();
         setInterval(fetchAPIs, 300000);
-
     </script>
 </body>
 </html>
